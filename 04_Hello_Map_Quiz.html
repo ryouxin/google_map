@@ -1,27 +1,160 @@
 <!-- This is the corresponding "starter code" for 04_Hello Map in Udacity and Google's Maps
 API Course, Lesson 1 -->
 <html>
- <head>
- <!-- styles put here, but you can include a CSS file and reference it instead! -->
-   <style type="text/css">
-     html, body { height: 100%; margin: 0; padding: 0; }
-     #map { height: 100%; }
-   </style>
- </head>
- <body>
-   <!-- TODO 1: Create a place to put the map in the HTML-->
-   <div></div>
-   <script>
-     // TODO: Create a map variable
 
-     // TODO: Complete the following function to initialize the map
-     function initMap() {
-       // TODO: use a constructor to create a new map JS object. You can use the coordinates
-       // we used, 40.7413549, -73.99802439999996 or your own!
-     }
-   </script>
-   <!--TODO: Load the JS API ASYNCHRONOUSLY below.-->
-   <script>
-   </script>
- </body>
+<head>
+	<!-- styles put here, but you can include a CSS file and reference it instead! -->
+	<style type="text/css">
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		#map {
+			height: 100%;
+			bottom: 0px;
+			left: 362px;
+			position: absolute;
+			right: 0px;
+		}
+
+		.option-box {
+			background: #fff;
+			border: 1px solid #999;
+			border-radius: 3px;
+			height: 100%;
+			line-height: 35px;
+			padding: 10px 10px 30px 10px;
+			text-align: left;
+			width: 340px;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- TODO 1: Create a place to put the map in the HTML-->
+	<div class='container'>
+		<div class='option-box'>
+			<h1>find</h1>
+			<div><input id="show-listings" type="button" value="Show Listings">
+				<input id="hide-listings" type="button" value="Hide Listings"></div>
+		</div>
+		<div id='map'></div>
+	</div>
+	<script>
+		// TODO: Create a map variable
+		var map;
+		var markers = [];
+		var locations = [{
+				title: 'localtion1',
+				location: {
+					lat: 32.547656,
+					lng: 32.547656
+				}
+			},
+			{
+				title: 'localtion2',
+				location: {
+					lat: 32.547656,
+					lng: 38.891899
+				}
+			},
+			{
+				title: 'localtion3',
+				location: {
+					lat: 38.891899,
+					lng: 32.547656
+				}
+			},
+			{
+				title: 'localtion4',
+				location: {
+					lat: 32.547656,
+					lng: 121.613541
+				}
+			},
+			{
+				title: 'localtion5',
+				location: {
+					lat: 38.891899,
+					lng: 121.613541
+				}
+			},
+			{
+				title: 'gugong',
+				location: {
+					lat: 39.9136376,
+					lng: 116.4095254
+				}
+			}
+		];
+		// TODO: Complete the following function to initialize the map
+		function initMap() {
+			map = new google.maps.Map(document.getElementById('map'), {
+				center: {
+					lat: 39.9136376,
+					lng: 116.4095254
+				},
+				zoom: 13
+			});
+			// TODO: use a constructor to create a new map JS object. You can use the coordinates
+			// we used, 40.7413549, -73.99802439999996 or your own!
+
+			document.getElementById('show-listings').addEventListener('click', showListings);
+			document.getElementById('hide-listings').addEventListener('click', HideListings);
+		};
+
+		function showListings() {
+			var largeInfowindow = new google.maps.InfoWindow();
+			var bounds = new google.maps.LatLngBounds();
+
+			for (var i = 0; i < locations.length; i++) {
+				var position = locations[i].location;
+				var title = locations[i].title;
+				var marker = new google.maps.Marker({
+					position: position,
+					map: map,
+					title: title,
+					animation: google.maps.Animation.DROP,
+					id: i
+				});
+				markers.push(marker);
+				console.log(markers);
+				bounds.extend(marker.position);
+				marker.addListener('click', function() {
+					populateInfoWindow(this, largeInfowindow);
+				});
+			}
+			map.fitBounds(bounds);
+		};
+
+		function HideListings() {
+			console.log(markers);
+			for (var i of markers) {
+				i.setMap(null);
+			}
+		};
+
+
+		function populateInfoWindow(marker, infowindow) {
+			if (infowindow.marker != marker) {
+				infowindow.marker = marker;
+				infowindow.setContent('<div>' + marker.title + '<br>position: ' + marker.position + '</div>');
+				infowindow.open(map, marker);
+				infowindow.addListener('closeclick', function() {
+					infowindow.setMarker(null);
+				});
+				// console.log(JSON.stringify(infowindow));
+			}
+
+		};
+	</script>
+	<!--TODO: Load the JS API ASYNCHRONOUSLY below.-->
+
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9-Mm80LmdjNcFdgT-mN-SHxNJqtJSf9I&v=3&callback=initMap">
+	</script>
+</body>
+
 </html>
