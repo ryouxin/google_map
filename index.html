@@ -1,0 +1,344 @@
+<!-- This is the corresponding "starter code" for 04_Hello Map in Udacity and Google's Maps
+API Course, Lesson 1 -->
+<html>
+
+<head>
+	<!-- styles put here, but you can include a CSS file and reference it instead! -->
+	<style type="text/css">
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		#map {
+			height: 100%;
+			bottom: 0px;
+			left: 262px;
+			position: absolute;
+			right: 0px;
+		}
+
+		#pano {
+			width: 200px;
+			height: 200px;
+		}
+
+		.option-box {
+			background: #fff;
+			border: 1px solid #999;
+			border-radius: 3px;
+			height: 100%;
+			line-height: 35px;
+			padding: 10px 10px 30px 10px;
+			text-align: left;
+			width: 240px;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- TODO 1: Create a place to put the map in the HTML-->
+	<div class='container'>
+		<div class='option-box'>
+			<h1>find</h1>
+			<div><input id="show-listings" type="button" value="Show Listings">
+				<input id="hide-listings" type="button" value="Hide Listings"></div>
+		</div>
+		<div id='map'></div>
+	</div>
+	<script>
+		// TODO: Create a map variable
+		var map;
+		var markers = [];
+		var locations = [{
+				title: 'Park Ave Penthouse',
+				location: {
+					lat: 40.7713024,
+					lng: -73.9632393
+				}
+			},
+			{
+				title: 'Chelsea Loft',
+				location: {
+					lat: 40.7444883,
+					lng: -73.9949465
+				}
+			},
+			{
+				title: 'Union Square Open Floor Plan',
+				location: {
+					lat: 40.7347062,
+					lng: -73.9895759
+				}
+			},
+			{
+				title: 'East Village Hip Studio',
+				location: {
+					lat: 40.7281777,
+					lng: -73.984377
+				}
+			},
+			{
+				title: 'TriBeCa Artsy Bachelor Pad',
+				location: {
+					lat: 40.7195264,
+					lng: -74.0089934
+				}
+			},
+			{
+				title: 'Chinatown Homey Space',
+				location: {
+					lat: 40.7180628,
+					lng: -73.9961237
+				}
+			}
+		];
+
+
+
+		// TODO: Complete the following function to initialize the map
+		function initMap() {
+			let mapStyle = [{
+					elementType: 'geometry',
+					stylers: [{
+						color: '#242f3e'
+					}]
+				},
+				{
+					elementType: 'labels.text.stroke',
+					stylers: [{
+						color: '#242f3e'
+					}]
+				},
+				{
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#746855'
+					}]
+				},
+				{
+					featureType: 'administrative.locality',
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#d59563'
+					}]
+				},
+				{
+					featureType: 'poi',
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#d59563'
+					}]
+				},
+				{
+					featureType: 'poi.park',
+					elementType: 'geometry',
+					stylers: [{
+						color: '#263c3f'
+					}]
+				},
+				{
+					featureType: 'poi.park',
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#6b9a76'
+					}]
+				},
+				{
+					featureType: 'road',
+					elementType: 'geometry',
+					stylers: [{
+						color: '#38414e'
+					}]
+				},
+				{
+					featureType: 'road',
+					elementType: 'geometry.stroke',
+					stylers: [{
+						color: '#212a37'
+					}]
+				},
+				{
+					featureType: 'road',
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#9ca5b3'
+					}]
+				},
+				{
+					featureType: 'road.highway',
+					elementType: 'geometry',
+					stylers: [{
+						color: '#746855'
+					}]
+				},
+				{
+					featureType: 'road.highway',
+					elementType: 'geometry.stroke',
+					stylers: [{
+						color: '#1f2835'
+					}]
+				},
+				{
+					featureType: 'road.highway',
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#f3d19c'
+					}]
+				},
+				{
+					featureType: 'transit',
+					elementType: 'geometry',
+					stylers: [{
+						color: '#2f3948'
+					}]
+				},
+				{
+					featureType: 'transit.station',
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#d59563'
+					}]
+				},
+				{
+					featureType: 'water',
+					elementType: 'geometry',
+					stylers: [{
+						color: '#17263c'
+					}]
+				},
+				{
+					featureType: 'water',
+					elementType: 'labels.text.fill',
+					stylers: [{
+						color: '#515c6d'
+					}]
+				},
+				{
+					featureType: 'water',
+					elementType: 'labels.text.stroke',
+					stylers: [{
+						color: '#17263c'
+					}]
+				}
+			];
+			map = new google.maps.Map(document.getElementById('map'), {
+				center: {
+					lat: 39.9136376,
+					lng: 116.4095254
+				},
+				zoom: 13,
+				styles: mapStyle,
+				mapTypeControl: false,
+			});
+			// TODO: use a constructor to create a new map JS object. You can use the coordinates
+			// we used, 40.7413549, -73.99802439999996 or your own!
+
+			document.getElementById('show-listings').addEventListener('click', showListings);
+			document.getElementById('hide-listings').addEventListener('click', HideListings);
+		};
+
+		function showListings() {
+			var largeInfowindow = new google.maps.InfoWindow();
+			var bounds = new google.maps.LatLngBounds();
+			let defaultIcon = makeMarkerIcon('0091ff');
+			let highlightedIcon = makeMarkerIcon('FFFF24');
+			for (var i = 0; i < locations.length; i++) {
+				var position = locations[i].location;
+				var title = locations[i].title;
+				var marker = new google.maps.Marker({
+					position: position,
+					map: map,
+					title: title,
+					animation: google.maps.Animation.DROP,
+					id: i,
+					icon: defaultIcon
+
+				});
+				markers.push(marker);
+				console.log(markers);
+				bounds.extend(marker.position);
+				marker.addListener('click', function() {
+					populateInfoWindow(this, largeInfowindow);
+				});
+				marker.addListener('mouseover', function() {
+					this.setIcon(highlightedIcon);
+				});
+				marker.addListener('mouseout', function() {
+					this.setIcon(defaultIcon);
+				});
+			}
+			map.fitBounds(bounds);
+		};
+
+		function HideListings() {
+			console.log(markers);
+			for (var i of markers) {
+				i.setMap(null);
+			}
+		};
+
+
+		function populateInfoWindow(marker, infowindow) {
+			if (infowindow.marker != marker) {
+
+				// infowindow.setContent('<div>' + marker.title + '<br>position: ' + marker.position + '</div>');
+				infowindow.setContent('');
+				infowindow.marker = marker;
+				// infowindow.open(map, marker);
+				infowindow.addListener('closeclick', function() {
+					infowindow.setMarker(null);
+				});
+				var streetViewService = new google.maps.StreetViewService();
+				let radius = 50;
+
+				function getStreetView(data, status) {
+					if (status == google.maps.StreetViewStatus.OK) {
+						console.log('ok');
+						var nearStreetViewLocation = data.location.latLng;
+						var heading = google.maps.geometry.spherical.computeHeading(
+							nearStreetViewLocation, marker.position);
+						console.log(heading);
+						console.log(nearStreetViewLocation);
+						infowindow.setContent('<div>' + marker.title + '</div><div id="pano">111111111111111111111111</div>');
+						var panoramaOptions = {
+							position: nearStreetViewLocation,
+							pov: {
+								heading: heading,
+								pitch: 30
+							}
+						};
+						var panorama = new google.maps.StreetViewPanorama(
+							document.getElementById('pano'), panoramaOptions);
+					} else {
+						infowindow.setContent('<div>' + marker.title + '</div>' +
+							'<div>No Street View Found</div>');
+					}
+				};
+				console.log(marker.position);
+
+				streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+				infowindow.open(map, marker);
+			}
+		};
+
+		function makeMarkerIcon(iconColor) {
+			var markerImage = new google.maps.MarkerImage('http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + iconColor +
+				'|40|_|%E2%80%A2',
+				new google.maps.Size(21, 34),
+				new google.maps.Point(0, 0),
+				new google.maps.Point(10, 34),
+				new google.maps.Size(21, 34));
+			return markerImage;
+
+		};
+	</script>
+	<!--TODO: Load the JS API ASYNCHRONOUSLY below.-->
+
+	<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyB9-Mm80LmdjNcFdgT-mN-SHxNJqtJSf9I&v=3&callback=initMap">
+	</script>
+</body>
+
+</html>
